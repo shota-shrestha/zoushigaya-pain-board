@@ -56,6 +56,4 @@ export default function PostPage() {
       </form>
     </div>
   );
-}export default function Post() {
-  return <h1>Post Pain</h1>;
 }
