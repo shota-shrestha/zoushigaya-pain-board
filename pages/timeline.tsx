@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { auth, db } from "../firebase";
+import { db, auth } from "../firebase";
 import {
   collection,
   query,
@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { format } from "date-fns";
-import { Button } from "../components/ui/button"; // 相対パスに修正！
+import { Heart } from "lucide-react";
 
 type Pain = {
   id: string;
@@ -60,34 +60,34 @@ export default function Timeline() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">みんなの悩み（新着順）</h1>
-      <div className="space-y-4">
-        {pains.map((pain) => (
-          <div
-            key={pain.id}
-            className="border rounded-xl p-4 shadow-sm bg-white"
-          >
-            <p className="mb-2 text-base">{pain.text}</p>
-            <div className="text-sm text-gray-500 mb-3">
-              {pain.createdAt?.toDate
-                ? format(pain.createdAt.toDate(), "yyyy年MM月dd日 HH:mm")
-                : "日時不明"}
+    <div className="max-w-xl mx-auto border-l border-r min-h-screen">
+      <h1 className="text-xl font-bold px-4 py-3 border-b">みんなの悩み</h1>
+      <div>
+        {pains.map((pain) => {
+          const liked = pain.likedBy?.includes(userId ?? "") ?? false;
+          return (
+            <div key={pain.id} className="px-4 py-3 border-b hover:bg-muted">
+              <p className="whitespace-pre-wrap text-sm">{pain.text}</p>
+              <div className="flex justify-between mt-2 text-xs text-gray-500">
+                <span>
+                  {pain.createdAt?.toDate
+                    ? format(pain.createdAt.toDate(), "yyyy年MM月dd日 HH:mm")
+                    : "日時不明"}
+                </span>
+                <button
+                  className="flex items-center gap-1"
+                  onClick={() => handleLike(pain.id)}
+                >
+                  <Heart
+                    size={16}
+                    className={liked ? "text-pink-600 fill-pink-600" : "text-gray-400"}
+                  />
+                  <span>{pain.likedBy?.length ?? 0}</span>
+                </button>
+              </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-700">
-                共感 {pain.likedBy?.length ?? 0} 件
-              </span>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => handleLike(pain.id)}
-              >
-                共感する
-              </Button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
