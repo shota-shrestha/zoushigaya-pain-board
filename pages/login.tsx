@@ -63,6 +63,4 @@ export default function Login() {
       </button>
     </div>
   );
-}export default function Login() {
-  return <h1>Login Page</h1>;
 }
