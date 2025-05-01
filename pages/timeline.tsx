@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { db, auth } from "../firebase";
+import { auth, db } from "../firebase";
 import {
   collection,
   query,
@@ -12,6 +12,8 @@ import {
 import { onAuthStateChanged } from "firebase/auth";
 import { format } from "date-fns";
 import { Heart } from "lucide-react";
+import { Card, CardContent, CardFooter, CardHeader } from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 type Pain = {
   id: string;
@@ -60,32 +62,38 @@ export default function Timeline() {
   };
 
   return (
-    <div className="max-w-xl mx-auto border-l border-r min-h-screen">
-      <h1 className="text-xl font-bold px-4 py-3 border-b">みんなの悩み</h1>
-      <div>
+    <div className="max-w-xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">みんなの悩み（Threads風）</h1>
+      <div className="space-y-4">
         {pains.map((pain) => {
           const liked = pain.likedBy?.includes(userId ?? "") ?? false;
           return (
-            <div key={pain.id} className="px-4 py-3 border-b hover:bg-muted">
-              <p className="whitespace-pre-wrap text-sm">{pain.text}</p>
-              <div className="flex justify-between mt-2 text-xs text-gray-500">
-                <span>
-                  {pain.createdAt?.toDate
-                    ? format(pain.createdAt.toDate(), "yyyy年MM月dd日 HH:mm")
-                    : "日時不明"}
+            <Card key={pain.id} className="shadow-sm border">
+              <CardHeader>
+                <p className="text-base whitespace-pre-wrap">{pain.text}</p>
+              </CardHeader>
+              <CardContent className="text-sm text-gray-500">
+                {pain.createdAt?.toDate
+                  ? format(pain.createdAt.toDate(), "yyyy年MM月dd日 HH:mm")
+                  : "日時不明"}
+              </CardContent>
+              <CardFooter className="flex justify-between text-sm">
+                <span className="text-gray-600">
+                  共感 {pain.likedBy?.length ?? 0} 件
                 </span>
-                <button
-                  className="flex items-center gap-1"
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => handleLike(pain.id)}
                 >
                   <Heart
                     size={16}
                     className={liked ? "text-pink-600 fill-pink-600" : "text-gray-400"}
                   />
-                  <span>{pain.likedBy?.length ?? 0}</span>
-                </button>
-              </div>
-            </div>
+                  <span className="ml-1">{liked ? "共感済み" : "共感する"}</span>
+                </Button>
+              </CardFooter>
+            </Card>
           );
         })}
       </div>
