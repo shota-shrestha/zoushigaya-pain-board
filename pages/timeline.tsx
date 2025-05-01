@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button"; // 相対パスに修正！
 
 type Pain = {
   id: string;
