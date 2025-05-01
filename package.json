@@ -1,0 +1,25 @@
+{
+  "name": "zoushigaya-pain-board",
+  "version": "1.0.0",
+  "description": "初期実装",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shota-shrestha/zoushigaya-pain-board.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shota-shrestha/zoushigaya-pain-board/issues"
+  },
+  "homepage": "https://github.com/shota-shrestha/zoushigaya-pain-board#readme",
+  "dependencies": {
+    "next": "^15.3.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}
