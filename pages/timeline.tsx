@@ -135,19 +135,19 @@ export default function Timeline() {
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="flex justify-between items-center text-sm">
-                <span className="text-gray-600">
-                  共感 {pain.likedBy?.length ?? 0} 件
-                </span>
+              <CardFooter className="flex justify-end items-center text-sm">
                 <button
                   onClick={() => handleLike(pain.id)}
-                  className="text-gray-400 hover:text-pink-600 transition"
+                  className="flex items-center gap-1 text-gray-400 hover:text-pink-600 transition"
                   aria-label="共感する"
                 >
                   <Heart
                     size={20}
                     className={liked ? "fill-pink-600 text-pink-600" : ""}
                   />
+                  <span className={liked ? "text-pink-600" : "text-gray-600"}>
+                    {pain.likedBy?.length ?? 0}
+                  </span>
                 </button>
               </CardFooter>
             </Card>
