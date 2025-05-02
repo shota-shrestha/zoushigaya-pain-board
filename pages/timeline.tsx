@@ -10,7 +10,6 @@ import {
   doc,
   getDocs,
 } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
 import { format } from "date-fns";
 import { Heart } from "lucide-react";
 import {
@@ -20,6 +19,8 @@ import {
   CardHeader,
 } from "../components/ui/card";
 import { Button } from "../components/ui/button";
+import { useRouter } from "next/router";
+import { useAuth } from "../hooks/useAuth";
 
 type Pain = {
   id: string;
@@ -34,15 +35,15 @@ type UserMap = Record<string, string>;
 
 export default function Timeline() {
   const [pains, setPains] = useState<Pain[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
   const [userMap, setUserMap] = useState<UserMap>({});
+  const router = useRouter();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUserId(user?.uid ?? null);
-    });
-    return () => unsubscribe();
-  }, []);
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [loading, user]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -70,26 +71,28 @@ export default function Timeline() {
   }, []);
 
   const handleLike = async (id: string) => {
-    if (!userId) {
+    if (!user) {
       alert("ログインしてください");
       return;
     }
 
     const target = pains.find((p) => p.id === id);
-    if (target?.likedBy?.includes(userId)) return;
+    if (target?.likedBy?.includes(user.uid)) return;
 
     const ref = doc(db, "pains", id);
     await updateDoc(ref, {
-      likedBy: arrayUnion(userId),
+      likedBy: arrayUnion(user.uid),
     });
   };
+
+  if (loading) return <p className="p-6">読み込み中...</p>;
 
   return (
     <div className="max-w-xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">みんなの悩み</h1>
       <div className="space-y-4">
         {pains.map((pain) => {
-          const liked = pain.likedBy?.includes(userId ?? "") ?? false;
+          const liked = pain.likedBy?.includes(user?.uid ?? "") ?? false;
           const displayName = userMap[pain.userId] || "匿名ユーザー";
 
           return (
@@ -102,8 +105,6 @@ export default function Timeline() {
                 {pain.createdAt?.toDate
                   ? format(pain.createdAt.toDate(), "yyyy年MM月dd日 HH:mm")
                   : "日時不明"}
-
-                {/* タグ表示（存在する場合） */}
                 {pain.tags && pain.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {pain.tags.map((tag, i) => (
