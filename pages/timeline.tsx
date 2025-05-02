@@ -63,7 +63,7 @@ export default function Timeline() {
 
   return (
     <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">みんなの悩み（Threads風）</h1>
+      <h1 className="text-2xl font-bold mb-6">みんなの悩み</h1>
       <div className="space-y-4">
         {pains.map((pain) => {
           const liked = pain.likedBy?.includes(userId ?? "") ?? false;
