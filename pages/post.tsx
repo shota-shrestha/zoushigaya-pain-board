@@ -47,7 +47,7 @@ export default function PostPage() {
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="あなたの悩みを書いてください"
+          placeholder="あなたの悩みを書いてみよう"
           className="w-full h-32 border p-2"
         />
         <button type="submit" className="w-full bg-blue-600 text-white p-2">
