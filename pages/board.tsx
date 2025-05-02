@@ -3,6 +3,7 @@ import { db } from "../firebase";
 import {
   collection,
   onSnapshot,
+  getDocs,
 } from "firebase/firestore";
 import { format } from "date-fns";
 import { Heart } from "lucide-react";
@@ -24,8 +25,14 @@ type Pain = {
   tags?: string[];
 };
 
+type UserInfo = {
+  displayName: string;
+  avatarUrl?: string;
+};
+
 export default function Board() {
   const [pains, setPains] = useState<Pain[]>([]);
+  const [userMap, setUserMap] = useState<Record<string, UserInfo>>({});
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -34,6 +41,22 @@ export default function Board() {
       router.push("/login");
     }
   }, [loading, user]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const snapshot = await getDocs(collection(db, "users"));
+      const map: Record<string, UserInfo> = {};
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        map[doc.id] = {
+          displayName: data.displayName || "匿名ユーザー",
+          avatarUrl: data.avatarUrl || "/default-avatar.png",
+        };
+      });
+      setUserMap(map);
+    };
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "pains"), (snapshot) => {
@@ -55,36 +78,50 @@ export default function Board() {
     <div className="max-w-xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">共感ランキング TOP10</h1>
       <div className="space-y-4">
-        {pains.map((pain, index) => (
-          <Card key={pain.id} className="shadow-sm border">
-            <CardHeader>
-              <div className="text-sm text-gray-500">#{index + 1}</div>
-              <p className="text-base whitespace-pre-wrap">{pain.text}</p>
-            </CardHeader>
-            <CardContent className="text-sm text-gray-500 space-y-2">
-              {pain.createdAt?.toDate
-                ? format(pain.createdAt.toDate(), "yyyy年MM月dd日 HH:mm")
-                : "日時不明"}
+        {pains.map((pain, index) => {
+          const userInfo = userMap[pain.userId] || {
+            displayName: "匿名ユーザー",
+            avatarUrl: "/default-avatar.png",
+          };
 
-              {pain.tags && pain.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {pain.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
+          return (
+            <Card key={pain.id} className="shadow-sm border">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <img
+                    src={userInfo.avatarUrl}
+                    alt="avatar"
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  {userInfo.displayName}
                 </div>
-              )}
-            </CardContent>
-            <CardFooter className="flex justify-end text-sm text-pink-600">
-              <Heart size={16} className="mr-1" />
-              共感 {pain.likedBy?.length ?? 0} 件
-            </CardFooter>
-          </Card>
-        ))}
+                <p className="text-base whitespace-pre-wrap">{pain.text}</p>
+              </CardHeader>
+              <CardContent className="text-sm text-gray-500 space-y-2">
+                {pain.createdAt?.toDate
+                  ? format(pain.createdAt.toDate(), "yyyy年MM月dd日 HH:mm")
+                  : "日時不明"}
+
+                {pain.tags && pain.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {pain.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="flex justify-end text-sm text-pink-600">
+                <Heart size={16} className="mr-1" />
+                共感 {pain.likedBy?.length ?? 0} 件
+              </CardFooter>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
