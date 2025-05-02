@@ -116,9 +116,9 @@ export default function Board() {
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="flex justify-end text-sm text-pink-600">
-                <Heart size={16} className="mr-1" />
-                共感 {pain.likedBy?.length ?? 0} 件
+              <CardFooter className="flex justify-end items-center text-sm text-pink-600">
+                <Heart size={20} className="mr-1 fill-pink-600 text-pink-600" />
+                <span>{pain.likedBy?.length ?? 0}</span>
               </CardFooter>
             </Card>
           );
