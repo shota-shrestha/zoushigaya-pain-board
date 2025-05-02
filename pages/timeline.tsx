@@ -8,11 +8,17 @@ import {
   updateDoc,
   arrayUnion,
   doc,
+  getDocs,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { format } from "date-fns";
 import { Heart } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 
 type Pain = {
@@ -23,9 +29,12 @@ type Pain = {
   likedBy?: string[];
 };
 
+type UserMap = Record<string, string>; // uid → displayName
+
 export default function Timeline() {
   const [pains, setPains] = useState<Pain[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userMap, setUserMap] = useState<UserMap>({});
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -34,6 +43,21 @@ export default function Timeline() {
     return () => unsubscribe();
   }, []);
 
+  // ユーザー一覧の取得
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const snapshot = await getDocs(collection(db, "users"));
+      const map: UserMap = {};
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        map[doc.id] = data.displayName || "匿名ユーザー";
+      });
+      setUserMap(map);
+    };
+    fetchUsers();
+  }, []);
+
+  // 投稿一覧取得
   useEffect(() => {
     const q = query(collection(db, "pains"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -67,9 +91,12 @@ export default function Timeline() {
       <div className="space-y-4">
         {pains.map((pain) => {
           const liked = pain.likedBy?.includes(userId ?? "") ?? false;
+          const displayName = userMap[pain.userId] || "匿名ユーザー";
+
           return (
             <Card key={pain.id} className="shadow-sm border">
               <CardHeader>
+                <div className="text-sm text-gray-500">{displayName}</div>
                 <p className="text-base whitespace-pre-wrap">{pain.text}</p>
               </CardHeader>
               <CardContent className="text-sm text-gray-500">
