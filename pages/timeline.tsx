@@ -31,11 +31,14 @@ type Pain = {
   tags?: string[];
 };
 
-type UserMap = Record<string, string>;
+type UserInfo = {
+  displayName: string;
+  avatarUrl?: string;
+};
 
 export default function Timeline() {
   const [pains, setPains] = useState<Pain[]>([]);
-  const [userMap, setUserMap] = useState<UserMap>({});
+  const [userMap, setUserMap] = useState<Record<string, UserInfo>>({});
   const router = useRouter();
   const { user, loading } = useAuth();
 
@@ -48,10 +51,13 @@ export default function Timeline() {
   useEffect(() => {
     const fetchUsers = async () => {
       const snapshot = await getDocs(collection(db, "users"));
-      const map: UserMap = {};
+      const map: Record<string, UserInfo> = {};
       snapshot.forEach((doc) => {
         const data = doc.data();
-        map[doc.id] = data.displayName || "匿名ユーザー";
+        map[doc.id] = {
+          displayName: data.displayName || "匿名ユーザー",
+          avatarUrl: data.avatarUrl || "/default-avatar.png",
+        };
       });
       setUserMap(map);
     };
@@ -93,18 +99,29 @@ export default function Timeline() {
       <div className="space-y-4">
         {pains.map((pain) => {
           const liked = pain.likedBy?.includes(user?.uid ?? "") ?? false;
-          const displayName = userMap[pain.userId] || "匿名ユーザー";
+          const userInfo = userMap[pain.userId] || {
+            displayName: "匿名ユーザー",
+            avatarUrl: "/default-avatar.png",
+          };
 
           return (
             <Card key={pain.id} className="shadow-sm border">
               <CardHeader>
-                <div className="text-sm text-gray-500">{displayName}</div>
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <img
+                    src={userInfo.avatarUrl}
+                    alt="avatar"
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                  {userInfo.displayName}
+                </div>
                 <p className="text-base whitespace-pre-wrap">{pain.text}</p>
               </CardHeader>
               <CardContent className="text-sm text-gray-500 space-y-2">
                 {pain.createdAt?.toDate
                   ? format(pain.createdAt.toDate(), "yyyy年MM月dd日 HH:mm")
                   : "日時不明"}
+
                 {pain.tags && pain.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {pain.tags.map((tag, i) => (
