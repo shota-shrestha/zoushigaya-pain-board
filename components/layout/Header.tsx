@@ -2,22 +2,29 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { auth } from "../../firebase";
 import { Button } from "../ui/button";
-import { Pencil, List, BarChart, User, LogOut } from "lucide-react";
+import { Pencil, List, BarChart, User, LogOut, LogIn } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Header() {
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleLogout = async () => {
     await auth.signOut();
     router.push("/login");
   };
 
-  const navItems = [
-    { href: "/post", icon: <Pencil size={18} />, label: "投稿" },
-    { href: "/timeline", icon: <List size={18} />, label: "タイムライン" },
-    { href: "/board", icon: <BarChart size={18} />, label: "ランキング" },
-    { href: "/profile", icon: <User size={18} />, label: "プロフィール" },
-  ];
+  const navItems = user
+    ? [
+        { href: "/post", icon: <Pencil size={18} />, label: "投稿" },
+        { href: "/timeline", icon: <List size={18} />, label: "タイムライン" },
+        { href: "/board", icon: <BarChart size={18} />, label: "ランキング" },
+        { href: "/profile", icon: <User size={18} />, label: "プロフィール" },
+      ]
+    : [
+        { href: "/login", icon: <LogIn size={18} />, label: "ログイン" },
+        { href: "/signup", icon: <User size={18} />, label: "新規登録" },
+      ];
 
   return (
     <header className="flex justify-between items-center px-4 py-3 border-b shadow-sm bg-white sticky top-0 z-50">
@@ -33,9 +40,11 @@ export default function Header() {
           </Link>
         ))}
       </nav>
-      <Button variant="ghost" size="icon" onClick={handleLogout} title="ログアウト">
-        <LogOut size={18} />
-      </Button>
+      {user && (
+        <Button variant="ghost" size="icon" onClick={handleLogout} title="ログアウト">
+          <LogOut size={18} />
+        </Button>
+      )}
     </header>
   );
 }
