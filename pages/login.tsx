@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { auth } from "../firebase";
+import { useRouter } from "next/router";
 import {
   signInWithEmailAndPassword,
   signInAnonymously,
 } from "firebase/auth";
-import { useRouter } from "next/router";
+import { auth } from "../firebase";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -34,33 +36,39 @@ export default function Login() {
     <div className="max-w-md mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">ログイン</h1>
       <form onSubmit={handleLogin} className="space-y-4">
-        <input
+        <Input
           type="email"
           placeholder="メールアドレス"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border"
         />
-        <input
+        <Input
           type="password"
           placeholder="パスワード"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border"
         />
-        <button type="submit" className="w-full bg-blue-600 text-white p-2">
+        <Button type="submit" className="w-full">
           ログイン
-        </button>
+        </Button>
       </form>
 
-      <div className="my-6 text-center text-sm text-gray-500">または</div>
+      <div className="text-center text-sm text-gray-500 mt-4">または</div>
 
-      <button
+      <Button
+        variant="outline"
         onClick={handleAnonymousLogin}
-        className="w-full bg-gray-800 text-white p-2"
+        className="w-full mt-2"
       >
         匿名ログイン
-      </button>
+      </Button>
+
+      <p className="text-sm text-center mt-6 text-gray-500">
+        アカウントをお持ちでない方は{" "}
+        <a href="/signup" className="text-blue-600 hover:underline">
+          新規登録はこちら
+        </a>
+      </p>
     </div>
   );
 }
