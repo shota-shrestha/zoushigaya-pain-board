@@ -27,9 +27,10 @@ type Pain = {
   userId: string;
   createdAt: any;
   likedBy?: string[];
+  tags?: string[];
 };
 
-type UserMap = Record<string, string>; // uid → displayName
+type UserMap = Record<string, string>;
 
 export default function Timeline() {
   const [pains, setPains] = useState<Pain[]>([]);
@@ -43,7 +44,6 @@ export default function Timeline() {
     return () => unsubscribe();
   }, []);
 
-  // ユーザー一覧の取得
   useEffect(() => {
     const fetchUsers = async () => {
       const snapshot = await getDocs(collection(db, "users"));
@@ -57,7 +57,6 @@ export default function Timeline() {
     fetchUsers();
   }, []);
 
-  // 投稿一覧取得
   useEffect(() => {
     const q = query(collection(db, "pains"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -99,10 +98,24 @@ export default function Timeline() {
                 <div className="text-sm text-gray-500">{displayName}</div>
                 <p className="text-base whitespace-pre-wrap">{pain.text}</p>
               </CardHeader>
-              <CardContent className="text-sm text-gray-500">
+              <CardContent className="text-sm text-gray-500 space-y-2">
                 {pain.createdAt?.toDate
                   ? format(pain.createdAt.toDate(), "yyyy年MM月dd日 HH:mm")
                   : "日時不明"}
+
+                {/* タグ表示（存在する場合） */}
+                {pain.tags && pain.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {pain.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="flex justify-between text-sm">
                 <span className="text-gray-600">
