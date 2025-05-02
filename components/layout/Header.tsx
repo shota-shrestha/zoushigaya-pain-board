@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { auth } from "../../firebase";
 import { Button } from "../ui/button";
+import { Pencil, List, BarChart, User, LogOut } from "lucide-react";
 
 export default function Header() {
   const router = useRouter();
@@ -11,16 +12,29 @@ export default function Header() {
     router.push("/login");
   };
 
+  const navItems = [
+    { href: "/post", icon: <Pencil size={18} />, label: "投稿" },
+    { href: "/timeline", icon: <List size={18} />, label: "タイムライン" },
+    { href: "/board", icon: <BarChart size={18} />, label: "ランキング" },
+    { href: "/profile", icon: <User size={18} />, label: "プロフィール" },
+  ];
+
   return (
     <header className="flex justify-between items-center px-4 py-3 border-b shadow-sm bg-white sticky top-0 z-50">
-      <nav className="space-x-4 text-sm font-medium">
-        <Link href="/post" className="hover:underline">投稿</Link>
-        <Link href="/timeline" className="hover:underline">タイムライン</Link>
-        <Link href="/board" className="hover:underline">ランキング</Link>
-        <Link href="/profile" className="hover:underline">プロフィール</Link>
+      <nav className="flex gap-4 text-sm font-medium">
+        {navItems.map(({ href, icon, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className="flex items-center gap-1 text-gray-700 hover:text-blue-600"
+          >
+            {icon}
+            <span className="hidden sm:inline">{label}</span>
+          </Link>
+        ))}
       </nav>
-      <Button variant="outline" size="sm" onClick={handleLogout}>
-        ログアウト
+      <Button variant="ghost" size="icon" onClick={handleLogout} title="ログアウト">
+        <LogOut size={18} />
       </Button>
     </header>
   );
