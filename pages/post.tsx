@@ -42,9 +42,7 @@ export default function PostPage() {
         likedBy: [],
       });
 
-      alert("投稿されました！");
-      setText("");
-      setTags("");
+      router.push("/timeline"); // ✅ 投稿完了後にリダイレクト
     } catch (err: any) {
       alert(err.message);
     }
