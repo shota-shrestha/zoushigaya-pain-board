@@ -9,6 +9,7 @@ import { Button } from "../components/ui/button";
 export default function Profile() {
   const [userId, setUserId] = useState<string | null>(null);
   const [name, setName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -21,7 +22,9 @@ export default function Profile() {
         const ref = doc(db, "users", user.uid);
         const snap = await getDoc(ref);
         if (snap.exists()) {
-          setName(snap.data().displayName || "");
+          const data = snap.data();
+          setName(data.displayName || "");
+          setAvatarUrl(data.avatarUrl || "");
         }
         setLoading(false);
       }
@@ -32,25 +35,29 @@ export default function Profile() {
   const handleSave = async () => {
     if (!userId) return;
     const ref = doc(db, "users", userId);
-    await setDoc(ref, { displayName: name }, { merge: true });
+    await setDoc(ref, { displayName: name, avatarUrl }, { merge: true });
     alert("プロフィールを更新しました！");
   };
 
   if (loading) return <p className="p-6">読み込み中...</p>;
 
   return (
-    <div className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">プロフィール編集</h1>
-      <div className="space-y-4">
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="表示名"
-        />
-        <Button onClick={handleSave} className="w-full">
-          保存する
-        </Button>
-      </div>
+    <div className="max-w-md mx-auto p-6 space-y-4">
+      <h1 className="text-2xl font-bold">プロフィール編集</h1>
+      <Input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="表示名"
+      />
+      <Input
+        type="url"
+        value={avatarUrl}
+        onChange={(e) => setAvatarUrl(e.target.value)}
+        placeholder="プロフィール画像URL（例: https://...jpg）"
+      />
+      <Button onClick={handleSave} className="w-full">
+        保存する
+      </Button>
     </div>
   );
 }
