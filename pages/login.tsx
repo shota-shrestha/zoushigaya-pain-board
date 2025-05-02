@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import {
-  signInWithEmailAndPassword,
-  signInAnonymously,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -17,15 +14,6 @@ export default function Login() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/post");
-    } catch (err: any) {
-      alert(err.message);
-    }
-  };
-
-  const handleAnonymousLogin = async () => {
-    try {
-      await signInAnonymously(auth);
       router.push("/post");
     } catch (err: any) {
       alert(err.message);
@@ -52,16 +40,6 @@ export default function Login() {
           ログイン
         </Button>
       </form>
-
-      <div className="text-center text-sm text-gray-500 mt-4">または</div>
-
-      <Button
-        variant="outline"
-        onClick={handleAnonymousLogin}
-        className="w-full mt-2"
-      >
-        匿名ログイン
-      </Button>
 
       <p className="text-sm text-center mt-6 text-gray-500">
         アカウントをお持ちでない方は{" "}
