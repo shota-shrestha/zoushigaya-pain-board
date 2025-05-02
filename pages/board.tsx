@@ -91,7 +91,7 @@ export default function Board() {
                   <img
                     src={userInfo.avatarUrl}
                     alt="avatar"
-                    className="w-8 h-8 rounded-full object-cover"
+                    className="inline-block w-8 h-8 rounded-full object-cover shrink-0"
                   />
                   {userInfo.displayName}
                 </div>
